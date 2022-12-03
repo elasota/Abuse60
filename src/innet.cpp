@@ -51,7 +51,7 @@ extern char lsf[256];
 game_handler *game_face=NULL;
 int local_client_number=0;        // 0 is the server
 join_struct *join_array=NULL;      // points to an array of possible joining clients
-extern char *get_login();
+extern char const *get_login();
 extern void set_login(char const *name);
 
 
@@ -242,43 +242,43 @@ int NF_set_file_server(char const *name)
 }
 
 
-int NF_open_file(char const *filename, char const *mode)
+void *NF_open_file(char const *filename, char const *mode)
 {
   if (prot)
     return fman->rf_open_file(filename,mode);
-  else return -2;
+  else return nullptr;
 }
 
 
-long NF_close(int fd)
+long NF_close(void *fd)
 {
   if (prot)
     return fman->rf_close(fd);
   else return 0;
 }
 
-long NF_read(int fd, void *buf, long size)
+long NF_read(void *fd, void *buf, long size)
 {
   if (prot)
     return fman->rf_read(fd,buf,size);
   else return 0;
 }
 
-long NF_filelength(int fd)
+long NF_filelength(void *fd)
 {
   if (prot)
     return fman->rf_file_size(fd);
   else return 0;
 }
 
-long NF_seek(int fd, long offset)
+long NF_seek(void *fd, long offset)
 {
   if (prot)
     return fman->rf_seek(fd,offset);
   else return 0;
 }
 
-long NF_tell(int fd)
+long NF_tell(void *fd)
 {
   if (prot)
     return fman->rf_tell(fd);
@@ -583,7 +583,7 @@ void net_reload()
 
       } while (!reload_end());
       wm->close_window(j);
-      unlink(NET_STARTFILE);
+      _unlink(NET_STARTFILE);
 
       the_game->reset_keymap();
 

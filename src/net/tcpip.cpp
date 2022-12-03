@@ -12,6 +12,11 @@
 #   include "config.h"
 #endif
 
+#if defined _MSC_VER
+#include <io.h>
+#include <winsock.h>
+#endif
+
 #ifdef _AIX
 #include <strings.h>
 #endif
@@ -68,7 +73,7 @@ static void net_log(char const *st, void *buf, long size)
 int unix_fd::read(void *buf, int size, net_address **addr)
 //{{{
 {
-  int tr=::read(fd,(char*)buf,size);
+  int tr=::recv(fd,(char*)buf,size,0);
 
   net_log("tcpip.cpp: unix_fd::read:", (char *) buf, (long) size);
 
@@ -83,7 +88,7 @@ int unix_fd::write(void const *buf, int size, net_address *addr)
   net_log("tcpip.cpp: unix_fd::write:", (char *) buf, (long) size);
 
   if (addr) fprintf(stderr,"Cannot change address for this socket type\n");
-  return ::write(fd,(char*)buf,size);
+  return ::send(fd,(char*)buf,size,0);
 }
 //}}}///////////////////////////////////
 
@@ -264,8 +269,8 @@ net_socket *tcpip_protocol::connect_to_server(net_address *addr, net_socket::soc
     return NULL;
   }
 
-  int socket_fd=socket(AF_INET,sock_type==net_socket::SOCKET_SECURE ? SOCK_STREAM : SOCK_DGRAM,0);
-  if (socket_fd<0)
+  SOCKET socket_fd=socket(AF_INET,sock_type==net_socket::SOCKET_SECURE ? SOCK_STREAM : SOCK_DGRAM,0);
+  if (socket_fd==INVALID_SOCKET)
   {
     fprintf(stderr,"unable to create socket (too many open files?)\n");
     return 0;
@@ -283,7 +288,7 @@ net_socket *tcpip_protocol::connect_to_server(net_address *addr, net_socket::soc
   if (connect(socket_fd, (struct sockaddr *) &((ip_address *)addr)->addr, sizeof( ((ip_address *)addr)->addr ))==-1)
   {
     fprintf(stderr,"unable to connect\n");
-    close(socket_fd);
+    closesocket(socket_fd);
     return 0;
   }
 

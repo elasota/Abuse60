@@ -457,11 +457,11 @@ void load_data(int argc, char **argv)
   load_number_icons();
 
 
-  ERROR(nbacktiles,"No background tiles defined!");
-  ERROR(nforetiles,"No foreground tiles defined!");
-  ERROR(foretiles[0]>=0,"No black (0) foreground tile defined!");
-  ERROR(backtiles[0]>=0,"No black (0) background tile defined!");
-  ERROR(big_font_pict!=-1 || small_font_pict!=-1,
+  ABUSE_ERROR(nbacktiles,"No background tiles defined!");
+  ABUSE_ERROR(nforetiles,"No foreground tiles defined!");
+  ABUSE_ERROR(foretiles[0]>=0,"No black (0) foreground tile defined!");
+  ABUSE_ERROR(backtiles[0]>=0,"No black (0) background tile defined!");
+  ABUSE_ERROR(big_font_pict!=-1 || small_font_pict!=-1,
     "No font loaded (use load_big_font or load_small_font)!");
   f_wid=cache.foret(foretiles[0])->im->Size().x;
   f_hi=cache.foret(foretiles[0])->im->Size().y;
@@ -506,7 +506,7 @@ char *load_script(char *name)
 
   long l=fp->file_size();
   s=(char *)malloc(l+1);
-  ERROR(s,"Malloc error in load_script");
+  ABUSE_ERROR(s,"Malloc error in load_script");
 
   fp->read(s,l);
   s[l]=0;

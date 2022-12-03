@@ -12,7 +12,9 @@
 #   include "config.h"
 #endif
 
+#if defined HAVE_UNISTD_H
 #include <unistd.h>
+#endif
 
 #include "common.h"
 
@@ -190,7 +192,7 @@ char const *get_login()
     if (cur_user_name[0])
         return cur_user_name;
 
-#if defined __CELLOS_LV2__
+#if defined __CELLOS_LV2__ || defined _MSC_VER
     /* FIXME: retrieve login name */
     return "Player";
 #else

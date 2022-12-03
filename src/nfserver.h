@@ -27,12 +27,12 @@ void remove_client(int client_number);
 int net_start();
 bFILE *open_nfs_file(char const *filename, char const *mode);
 
-int NF_open_file(char const *filename, char const *mode);
-long NF_close(int fd);
-long NF_read(int fd, void *buf, long size);
-long NF_filelength(int fd);
-long NF_tell(int fd);
-long NF_seek(int fd, long offset);
+void *NF_open_file(char const *filename, char const *mode);
+long NF_close(void *fd);
+long NF_read(void *fd, void *buf, long size);
+long NF_filelength(void *fd);
+long NF_tell(void *fd);
+long NF_seek(void *fd, long offset);
 int NF_set_file_server(net_address *addr);
 
 int request_server_entry();

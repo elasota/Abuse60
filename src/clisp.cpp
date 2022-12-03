@@ -13,7 +13,14 @@
 #endif
 
 #include <string.h>
+
+#if defined HAVE_UNISTD_H
 #include <unistd.h>
+#endif
+
+#if defined _MSC_VER
+#include <direct.h>
+#endif
 
 #include "common.h"
 
@@ -947,6 +954,9 @@ void *l_caller(long number, void *args)
 #if defined __CELLOS_LV2__
       /* FIXME: retrieve the PS3 account name */
       char const *cd = "Player";
+#elif defined _MSC_VER
+      char cd[150];
+      _getcwd(cd, 100);
 #else
       char cd[150];
       getcwd(cd, 100);

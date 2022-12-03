@@ -14,7 +14,10 @@
 
 #include <ctype.h>
 #include <setjmp.h>
+
+#if defined HAVE_UNISTD_H
 #include <unistd.h>
+#endif
 
 #ifdef __APPLE__
 // SDL for OSX needs to override main()
@@ -1374,7 +1377,7 @@ Game::Game(int argc, char **argv)
     // Clean up that old crap
     char *fastpath = (char *)malloc(strlen(get_save_filename_prefix()) + 13);
     sprintf(fastpath, "%sfastload.dat", get_save_filename_prefix());
-    unlink(fastpath);
+    _unlink(fastpath);
     free(fastpath);
 
 //    ProfilerInit(collectDetailed, bestTimeBase, 2000, 200); //prof
@@ -1621,17 +1624,17 @@ int Game::calc_speed()
         // that we don't exceed 30FPS in edit mode and hog the CPU.
         frame_timer.WaitMs(33);
     }
-    else if (avg_ms < 1000.0f / 15 && need_delay)
+    else if (avg_ms < 1000.0f / 60.0f && need_delay)
     {
         frame_panic = 0;
         if (!no_delay)
         {
-            frame_timer.WaitMs(1000.0f / 15);
+            frame_timer.WaitMs(1000.0f / 60.0f);
             avg_ms -= 0.1f * deltams;
-            avg_ms += 0.1f * 1000.0f / 15;
+            avg_ms += 0.1f * 1000.0f / 15.0f;
         }
     }
-    else if (avg_ms > 1000.0f / 14)
+    else if (avg_ms > 1000.0f / 55.f)
     {
         if(avg_ms > 1000.0f / 10)
             massive_frame_panic++;

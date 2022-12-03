@@ -1,0 +1,12 @@
+.vs
+*.user
+*.exe
+*.ilk
+*.log
+*.exe
+*.recipe
+*.tlog
+*.lastbuildstate
+x64
+ gamma.lsp
+light.tbl

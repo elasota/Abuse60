@@ -37,6 +37,8 @@ static inline unsigned long Min(unsigned long a, unsigned long b) { return a < b
 static inline unsigned long Max(unsigned long a, unsigned long b) { return a > b ? a : b; }
 static inline float Min(float a, float b) { return a < b ? a : b; }
 static inline float Max(float a, float b) { return a > b ? a : b; }
+static inline size_t Min(size_t a, size_t b) { return a < b ? a : b; }
+static inline size_t Max(size_t a, size_t b) { return a > b ? a : b; }
 
 //
 // Byte swapping
@@ -62,7 +64,7 @@ static inline uint32_t lltl(uint32_t x)
     return x;
 }
 
-#define ERROR(x,st) { if (!(x)) \
+#define ABUSE_ERROR(x,st) { if (!(x)) \
    { printf("Error on line %d of %s : %s\n", \
      __LINE__,__FILE__,st); exit(1); } }
 
@@ -71,7 +73,7 @@ static inline uint32_t lltl(uint32_t x)
 #   define CONDITION(x,st)
 #   define CHECK(x)
 #else
-#   define CONDITION(x,st) ERROR(x,st)
+#   define CONDITION(x,st) ABUSE_ERROR(x,st)
 #   define CHECK(x) CONDITION(x,"Check stop");
 #endif
 

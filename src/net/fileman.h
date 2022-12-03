@@ -1,10 +1,14 @@
 #ifndef __FILEMAN_HPP_
 #define __FILEMAN_HPP_
 
+#if defined HAVE_UNISTD_H
 #include <unistd.h>
+#endif
+
 #include "sock.h"
 #include <stdlib.h>
 #include <string.h>
+#include <stdint.h>
 
 
 class file_manager
@@ -44,7 +48,7 @@ class file_manager
     int32_t file_size() { return size; }
     int open_failure() { return sock==NULL; }
     ~remote_file();
-    int fd() { if (sock) return sock->get_fd(); else return -1; }
+    void *fd() { if (sock) return sock->get_fd(); else return NULL; }
   } ;
 
 
@@ -53,7 +57,7 @@ class file_manager
 
   int process_nfs_command(nfs_client *c);
   void secure_filename(char *filename, char *mode);
-  remote_file *find_rf(int fd);
+  remote_file *find_rf(void *fd);
   net_protocol *proto;
   public :
 
@@ -62,12 +66,12 @@ class file_manager
   void add_nfs_client(net_socket *sock);
 
 
-  int rf_open_file(char const *&filename, char const *mode);
-  int32_t rf_tell(int fd);
-  int32_t rf_seek(int fd, int32_t offset);
-  int rf_read(int fd, void *buffer, size_t count);
-  int rf_close(int fd);
-  int32_t rf_file_size(int fd);
+  void *rf_open_file(char const *&filename, char const *mode);
+  int32_t rf_tell(void *fd);
+  int32_t rf_seek(void *fd, int32_t offset);
+  int rf_read(void *fd, void *buffer, size_t count);
+  int rf_close(void *fd);
+  int32_t rf_file_size(void *fd);
   void set_default_fs(net_address *def) { default_fs=def->copy(); }
   ~file_manager() { if (default_fs) delete default_fs; }
 } ;

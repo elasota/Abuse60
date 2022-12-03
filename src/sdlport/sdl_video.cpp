@@ -41,7 +41,9 @@
 #include "image.h"
 #include "setup.h"
 
-SDL_Surface *window = NULL, *surface = NULL;
+SDL_Window *window = NULL;
+SDL_Surface *surface = NULL;
+SDL_Palette *surface_palette = NULL;
 image *screen = NULL;
 int win_xscale, win_yscale, mouse_xscale, mouse_yscale;
 int xres, yres;
@@ -73,21 +75,10 @@ static int power_of_two(int input)
 //
 void set_mode(int mode, int argc, char **argv)
 {
-    const SDL_VideoInfo *vidInfo;
-    int vidFlags = SDL_HWPALETTE;
+    Uint32 windowFlags = 0;
 
-    // Check for video capabilities
-    vidInfo = SDL_GetVideoInfo();
-    if(vidInfo->hw_available)
-        vidFlags |= SDL_HWSURFACE;
-    else
-        vidFlags |= SDL_SWSURFACE;
-
-    if(flags.fullscreen)
-        vidFlags |= SDL_FULLSCREEN;
-
-    if(flags.doublebuf)
-        vidFlags |= SDL_DOUBLEBUF;
+    if (flags.fullscreen)
+        windowFlags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
 
     // Calculate the window scale
     win_xscale = mouse_xscale = (flags.xres << 16) / xres;
@@ -100,7 +91,7 @@ void set_mode(int mode, int argc, char **argv)
         // allow doublebuffering in with gl too
         SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, flags.doublebuf);
         // set video gl capability
-        vidFlags |= SDL_OPENGL;
+        windowFlags |= SDL_WINDOW_OPENGL;
         // force no scaling, let the hw do it
         win_xscale = win_yscale = 1 << 16;
 #else
@@ -110,16 +101,19 @@ void set_mode(int mode, int argc, char **argv)
 #endif
     }
 
+    window = SDL_CreateWindow("Abuse", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, flags.xres, flags.yres, windowFlags);
+    SDL_Surface *window_surf = SDL_GetWindowSurface(window);
+
     // Set the icon for this window.  Looks nice on taskbars etc.
-    SDL_WM_SetIcon(SDL_LoadBMP("abuse.bmp"), NULL);
 
     // Create the window with a preference for 8-bit (palette animations!), but accept any depth */
-    window = SDL_SetVideoMode(flags.xres, flags.yres, 8, vidFlags | SDL_ANYFORMAT);
     if(window == NULL)
     {
         printf("Video : Unable to set video mode : %s\n", SDL_GetError());
         exit(1);
     }
+
+    SDL_SetWindowIcon(window, SDL_LoadBMP("abuse.bmp"));
 
     // Create the screen image
     screen = new image(vec2i(xres, yres), NULL, 2);
@@ -184,7 +178,7 @@ void set_mode(int mode, int argc, char **argv)
     }
 
     // Create our 8-bit surface
-    surface = SDL_CreateRGBSurface(SDL_SWSURFACE, window->w, window->h, 8, 0xff, 0xff, 0xff, 0xff);
+    surface = SDL_CreateRGBSurface(SDL_SWSURFACE, window_surf->w, window_surf->h, 8, 0, 0, 0, 0);
     if(surface == NULL)
     {
         // Our surface is no good, we have to bail.
@@ -192,15 +186,15 @@ void set_mode(int mode, int argc, char **argv)
         exit(1);
     }
 
-    printf("Video : %dx%d %dbpp\n", window->w, window->h, window->format->BitsPerPixel);
+    surface_palette = SDL_AllocPalette(256);
+    SDL_SetSurfacePalette(surface, surface_palette);
 
-    // Set the window caption
-    SDL_WM_SetCaption("Abuse", "Abuse");
+    printf("Video : %dx%d %dbpp\n", window_surf->w, window_surf->h, window_surf->format->BitsPerPixel);
 
     // Grab and hide the mouse cursor
     SDL_ShowCursor(0);
-    if(flags.grabmouse)
-        SDL_WM_GrabInput(SDL_GRAB_ON);
+    if (flags.grabmouse)
+        SDL_SetWindowGrab(window, SDL_TRUE);
 
     update_dirty(screen);
 }
@@ -217,6 +211,8 @@ void close_graphics()
     // Free our 8-bit surface
     if(surface)
         SDL_FreeSurface(surface);
+    if(surface_palette)
+        SDL_FreePalette(surface_palette);
 
 #ifdef HAVE_OPENGL
     if (texture)
@@ -350,16 +346,16 @@ void palette::load()
     if(ncolors > 256)
         ncolors = 256;
 
-    SDL_Color colors[ncolors];
+    SDL_Color colors[256];
     for(int ii = 0; ii < ncolors; ii++)
     {
         colors[ii].r = red(ii);
         colors[ii].g = green(ii);
         colors[ii].b = blue(ii);
     }
-    SDL_SetColors(surface, colors, 0, ncolors);
-    if(window->format->BitsPerPixel == 8)
-        SDL_SetColors(window, colors, 0, ncolors);
+    SDL_SetPaletteColors(surface_palette, colors, 0, ncolors);
+    if(surface->format->BitsPerPixel == 8)
+        SDL_SetSurfacePalette(surface, surface_palette);
 
     // Now redraw the surface
     update_window_part(NULL);
@@ -403,8 +399,11 @@ void update_window_done()
 #else
     // swap buffers in case of double buffering
     // do nothing in case of single buffering
+    SDL_Surface *surf = SDL_GetWindowSurface(window);
+    SDL_Palette *pal = surface_palette;
+
     if(flags.doublebuf)
-        SDL_Flip(window);
+        SDL_UpdateWindowSurface(window);
 #endif
 }
 
@@ -415,7 +414,7 @@ static void update_window_part(SDL_Rect *rect)
     if (flags.gl)
         return;
 
-    SDL_BlitSurface(surface, rect, window, rect);
+    SDL_BlitSurface(surface, rect, SDL_GetWindowSurface(window), rect);
 
     // no window update needed until end of run
     if(flags.doublebuf)
@@ -423,7 +422,7 @@ static void update_window_part(SDL_Rect *rect)
 
     // update window part for single buffer
     if(rect == NULL)
-        SDL_UpdateRect(window, 0, 0, 0, 0);
+        SDL_UpdateWindowSurface(window);
     else
-        SDL_UpdateRect(window, rect->x, rect->y, rect->w, rect->h);
+        SDL_UpdateWindowSurfaceRects(window, rect, 1);
 }

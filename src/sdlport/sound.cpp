@@ -25,7 +25,7 @@
 #include <cstring>
 
 #include <SDL.h>
-#include <SDL/SDL_mixer.h>
+#include <SDL_mixer.h>
 
 #include "sound.h"
 #include "hmi.h"
@@ -55,6 +55,7 @@ int sound_init( int argc, char **argv )
 
     // Check for the sfx directory, disable sound if we can't find it.
     datadir = get_filename_prefix();
+#ifndef _MSC_VER
     sfxdir = (char *)malloc( strlen( datadir ) + 5 + 1 );
     sprintf( sfxdir, "%s/sfx/", datadir );
     if( (fd = fopen( sfxdir,"r" )) == NULL )
@@ -64,6 +65,7 @@ int sound_init( int argc, char **argv )
         return 0;
     }
     free( sfxdir );
+#endif
 
     if (Mix_OpenAudio(44100, AUDIO_S16SYS, 2, 128) < 0)
     {
@@ -189,7 +191,7 @@ song::song(char const * filename)
     }
 
     rw = SDL_RWFromMem(data, data_size);
-    music = Mix_LoadMUS_RW(rw);
+    music = Mix_LoadMUS_RW(rw, 1);
 
     if (!music)
     {

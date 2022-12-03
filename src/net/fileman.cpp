@@ -15,7 +15,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <fcntl.h>
+
+#if defined HAVE_UNISTD_H
 #include <unistd.h>
+#endif
+
 #include <string.h>
 #include <signal.h>
 #include <sys/stat.h>
@@ -26,6 +30,10 @@
 #include "netface.h"
 #include "ghandler.h"
 #include "specache.h"
+
+#ifdef _MSC_VER
+#include <io.h>
+#endif
 
 extern net_protocol *prot;
 
@@ -107,14 +115,14 @@ int file_manager::process_nfs_command(nfs_client *c)
       int32_t offset;
       if (c->sock->read(&offset,sizeof(offset))!=sizeof(offset)) return 0;
       offset=lltl(offset);
-      offset=lseek(c->file_fd,offset,0);
+      offset=_lseek(c->file_fd,offset,0);
       offset=lltl(offset);
       if (c->sock->write(&offset,sizeof(offset))!=sizeof(offset)) return 0;
       return 1;
     } break;
     case NFCMD_TELL :
     {
-      int32_t offset=lseek(c->file_fd,0,SEEK_CUR);
+      int32_t offset=_lseek(c->file_fd,0,SEEK_CUR);
       offset=lltl(offset);
       if (c->sock->write(&offset,sizeof(offset))!=sizeof(offset)) return 0;
       return 1;
@@ -142,8 +150,8 @@ int file_manager::nfs_client::send_read()   // return 0 if failure on socket, no
       {
     read_total=size_to_read>(READ_PACKET_SIZE-2) ? (READ_PACKET_SIZE-2) : size_to_read;
 
-    actual=read(file_fd,buf+2,read_total);
-    ushort tmp = lstl(actual);
+    actual=_read(file_fd,buf+2,read_total);
+    uint16_t tmp = lstl(actual);
     memcpy(buf, &tmp, sizeof(tmp));
 
     int write_amount=sock->write(buf,actual+2);
@@ -220,7 +228,7 @@ file_manager::nfs_client::~nfs_client()
 {
   delete sock;
   if (file_fd>=0)
-    close(file_fd);
+    _close(file_fd);
 }
 
 
@@ -246,7 +254,11 @@ void file_manager::add_nfs_client(net_socket *sock)
     mp++;
   }
 
-  int f=open(filename,flags,S_IRWXU | S_IRWXG | S_IRWXO);
+#if defined _MSC_VER
+  flags |= _O_BINARY;
+#endif
+
+  int f=_open(filename,flags, _S_IREAD | S_IWRITE);
 
   FILE *fp=fopen("open.log","ab");
   fprintf(fp,"open file %s, fd=%d\n",filename,f);
@@ -263,11 +275,11 @@ void file_manager::add_nfs_client(net_socket *sock)
     delete sock;
   else
   {
-    int32_t cur_pos=lseek(f,0,SEEK_CUR);
-    int32_t size=lseek(f,0,SEEK_END);
-    lseek(f,cur_pos,SEEK_SET);
+    int32_t cur_pos=_lseek(f,0,SEEK_CUR);
+    int32_t size=_lseek(f,0,SEEK_END);
+    _lseek(f,cur_pos,SEEK_SET);
     size=lltl(size);
-    if (sock->write(&size,sizeof(size))!=sizeof(size)) {  close(f); delete sock; sock=NULL; return ; }
+    if (sock->write(&size,sizeof(size))!=sizeof(size)) {  _close(f); delete sock; sock=NULL; return ; }
 
     nfs_list=new nfs_client(sock,f,nfs_list);
     nfs_list->size=size;
@@ -322,7 +334,7 @@ int file_manager::remote_file::unbuffered_read(void *buffer, size_t count)
     int32_t total_read=0;
     char buf[READ_PACKET_SIZE];
 
-    ushort packet_size;
+    uint16_t packet_size;
     do
     {
       if (sock->read(&packet_size,sizeof(packet_size))!=sizeof(packet_size))
@@ -333,7 +345,7 @@ int file_manager::remote_file::unbuffered_read(void *buffer, size_t count)
 
       packet_size=lstl(packet_size);
 
-      ushort size_read=sock->read(buf,packet_size);
+      uint16_t size_read=sock->read(buf,packet_size);
 
       if (size_read!=packet_size)
       {
@@ -389,7 +401,7 @@ int32_t file_manager::remote_file::unbuffered_seek(int32_t offset)  // tell serv
 file_manager::remote_file::~remote_file()
 { r_close(NULL); }
 
-int file_manager::rf_open_file(char const *&filename, char const *mode)
+void *file_manager::rf_open_file(char const *&filename, char const *mode)
 {
   net_address *fs_server_addr=NULL;
 
@@ -401,7 +413,7 @@ int file_manager::rf_open_file(char const *&filename, char const *mode)
     if (!fs_server_addr)
     {
       printf("couldn not get address for %s\n",filename);
-      return -1;
+      return nullptr;
     }
   } else if (default_fs)
     fs_server_addr=default_fs->copy();
@@ -414,14 +426,14 @@ int file_manager::rf_open_file(char const *&filename, char const *mode)
     if (!sock)
     {
       fprintf(stderr,"unable to connect\n");
-      return -1;
+      return nullptr;
     }
 
     remote_file *rf=new remote_file(sock,filename,mode,remote_list);
     if (rf->open_failure())
     {
       delete rf;
-      return -1;
+      return nullptr;
     }
     else
     {
@@ -433,7 +445,7 @@ int file_manager::rf_open_file(char const *&filename, char const *mode)
 
 // FIXME: AK - Should we keep this?
 //  secure_filename(filename,mode);
-  if (filename[0]==0) return -1;
+  if (filename[0]==0) return nullptr;
 
   int flags=0;
   while (*mode)
@@ -448,53 +460,53 @@ int file_manager::rf_open_file(char const *&filename, char const *mode)
     sprintf(tmp_name,"%s%s",get_filename_prefix(),filename);
   else strcpy(tmp_name,filename);
 
-  int f=open(tmp_name,flags,S_IRWXU | S_IRWXG | S_IRWXO);
+  int f=_open(tmp_name,flags,_S_IREAD | _S_IWRITE);
   if (f>=0)
-  { close(f);
-    return -2;
+  { _close(f);
+    return nullptr;
   }
 
-  return -1;
+  return nullptr;
 }
 
 
-file_manager::remote_file *file_manager::find_rf(int fd)
+file_manager::remote_file *file_manager::find_rf(void *fd)
 {
   remote_file *r=remote_list;
   for (; r && r->sock->get_fd()!=fd; r=r->next)
   {
-    if (r->sock->get_fd()==-1)
+    if (r->sock->get_fd()==nullptr)
     {
       fprintf(stderr,"bad sock\n");
     }
   }
-  if (!r) { fprintf(stderr,"Bad fd for remote file %d\n",fd); }
+  if (!r) { fprintf(stderr,"Bad fd for remote file %p\n",fd); }
   return r;
 }
 
 
-int32_t file_manager::rf_tell(int fd)
+int32_t file_manager::rf_tell(void *fd)
 {
   remote_file *rf=find_rf(fd);
   if (rf) return rf->unbuffered_tell();
   else return 0;
 }
 
-int32_t file_manager::rf_seek(int fd, int32_t offset)
+int32_t file_manager::rf_seek(void *fd, int32_t offset)
 {
   remote_file *rf=find_rf(fd);
   if (rf) return rf->unbuffered_seek(offset);
   else return 0;
 }
 
-int file_manager::rf_read(int fd, void *buffer, size_t count)
+int file_manager::rf_read(void *fd, void *buffer, size_t count)
 {
   remote_file *rf=find_rf(fd);
   if (rf) return rf->unbuffered_read(buffer,count);
   else return 0;
 }
 
-int file_manager::rf_close(int fd)
+int file_manager::rf_close(void *fd)
 {
   remote_file *rf=remote_list,*last=NULL;
   while (rf && rf->sock->get_fd()!=fd) rf=rf->next;
@@ -506,12 +518,12 @@ int file_manager::rf_close(int fd)
     return 1;
   } else
   {
-    fprintf(stderr,"Bad fd for remote file %d\n",fd);
+    fprintf(stderr,"Bad fd for remote file %p\n",fd);
     return 0;
   }
 }
 
-int32_t file_manager::rf_file_size(int fd)
+int32_t file_manager::rf_file_size(void *fd)
 {
   remote_file *rf=find_rf(fd);
   if (rf) return rf->file_size();

@@ -19,7 +19,10 @@
 #include <string.h>
 #include <limits.h>
 #include <time.h>
+
+#if defined HAVE_UNISTD_H
 #include <unistd.h>
+#endif
 
 #include "common.h"
 
@@ -2213,7 +2216,7 @@ int level::save(char const *filename, int save_all)
         bFILE *fp = open_file( name, "rb" );    // does file already exist?
         if( !fp->open_failure() )
         {
-            unlink( bkname );
+            _unlink( bkname );
             bFILE *bk = open_file( bkname, "wb" );
             if( bk->open_failure() )
                 dprintf("unable to open backup file %s\n", bkname );
@@ -2231,7 +2234,7 @@ int level::save(char const *filename, int save_all)
                 }
             }
             delete bk;
-#if (defined(__MACH__) || !defined(__APPLE__))
+#if ((defined(__MACH__) || !defined(__APPLE__)) && !defined(_MSC_VER))
             chmod( bkname, S_IRWXU | S_IRWXG | S_IRWXO );
 #endif
         }
@@ -2326,7 +2329,7 @@ int level::save(char const *filename, int save_all)
             }
 
             delete fp;
-#if (defined(__MACH__) || !defined(__APPLE__))
+#if ((defined(__MACH__) || !defined(__APPLE__)) && !defined(_MSC_VER))
             chmod( name, S_IRWXU | S_IRWXG | S_IRWXO );
 #endif
             write_cache_prof_info();

@@ -18,7 +18,15 @@
 #include <ctype.h>
 #include <fcntl.h>
 #include <math.h>
+
+#if defined HAVE_UNISTD_H
 #include <unistd.h>
+#endif
+
+#if defined _MSC_VER
+#include <io.h>
+#endif
+
 #include <sys/types.h>
 #include <sys/stat.h>
 
@@ -295,6 +303,10 @@ void jFILE::open_external(char const *filename, char const *mode, int flags)
     sprintf(tmp_name,"%s%s",spec_prefix,filename);
   else strcpy(tmp_name,filename);
 
+#if defined _MSC_VER
+  flags |= _O_BINARY;
+#endif
+
 //  int old_mask=umask(S_IRWXU | S_IRWXG | S_IRWXO);
   if (flags&O_WRONLY)
   {
@@ -307,16 +319,16 @@ void jFILE::open_external(char const *filename, char const *mode, int flags)
     flags-=O_WRONLY;
     flags|=O_CREAT|O_RDWR;
 
-    fd=open(tmp_name,flags,S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH);
+    fd=_open(tmp_name,flags,_S_IREAD | _S_IWRITE);
   } else
-    fd=open(tmp_name,flags);
+    fd=_open(tmp_name,flags);
 
 //  umask(old_mask);
   if (fd>=0 && !skip_size)
   {
-    file_length=lseek(fd,0,SEEK_END);
+    file_length=_lseek(fd,0,SEEK_END);
     if ((flags&O_APPEND)==0)
-      lseek(fd,0,SEEK_SET);
+      _lseek(fd,0,SEEK_SET);
     else
         current_offset = file_length;
     start_offset=0;
@@ -384,7 +396,7 @@ void jFILE::open_internal(char const *filename, char const *mode, int flags)
     rbuf_start=rbuf_end=0;
       } else
       {
-    close(fd);
+    _close(fd);
     fd=-1;
       }
     }
@@ -433,7 +445,7 @@ jFILE::~jFILE()
   {
     total_files_open--;
     if (fd != spec_main_fd)
-        close(fd);
+        _close(fd);
   }
 }
 
@@ -449,25 +461,27 @@ int jFILE::unbuffered_read(void *buf, size_t count)
 {
     unsigned long len;
 
+    long debug_pre_read_offset = ::_tell(fd);
     if (fd == spec_main_fd)
     {
         if (current_offset+start_offset != spec_main_offset)
-            spec_main_offset = lseek(fd, start_offset+current_offset, SEEK_SET);
+            spec_main_offset = _lseek(fd, start_offset+current_offset, SEEK_SET);
 
-        len = ::read(fd,(char*)buf,count);
+        len = ::_read(fd,(char*)buf,count);
         spec_main_offset += len;
     }
     else
     {
-      len = ::read(fd,(char*)buf,count);
+      len = ::_read(fd,(char*)buf,count);
     }
+    long debug_post_read_offset = ::_tell(fd);
     current_offset += len;
     return len;
 }
 
 int jFILE::unbuffered_write(void const *buf, size_t count)
 {
-  long ret = ::write(fd,(char*)buf,count);
+  long ret = ::_write(fd,(char*)buf,count);
     current_offset += ret;
     return ret;
 }
@@ -479,11 +493,11 @@ int jFILE::unbuffered_seek(long offset, int whence) // whence=SEEK_SET, SEEK_CUR
   switch (whence)
   {
     case SEEK_SET :
-    { ret = lseek(fd,start_offset+offset,SEEK_SET); } break;
+    { ret = _lseek(fd,start_offset+offset,SEEK_SET); } break;
     case SEEK_END :
-    { ret = lseek(fd,start_offset+file_length-offset,SEEK_SET); } break;
+    { ret = _lseek(fd,start_offset+file_length-offset,SEEK_SET); } break;
     case SEEK_CUR :
-    { ret = lseek(fd,offset,SEEK_CUR); } break;
+    { ret = _lseek(fd,offset,SEEK_CUR); } break;
     default:
         ret = -1;
         break;

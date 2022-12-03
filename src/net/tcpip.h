@@ -37,6 +37,12 @@
 #   endif
 #endif
 
+#if defined _MSC_VER
+#  include <winsock.h>
+#endif
+
+#include <stdio.h>
+
 #include "sock.h"
 #include "isllist.h"
 
@@ -132,9 +138,9 @@ extern tcpip_protocol tcpip;
 class unix_fd : public net_socket
 {
   protected :
-  int fd;
+  SOCKET fd;
   public :
-  unix_fd(int fd) : fd(fd) { };
+  unix_fd(SOCKET fd) : fd(fd) { };
   virtual int error()                             { return FD_ISSET(fd,&tcpip.exception_set); }
   virtual int ready_to_read()                     { return FD_ISSET(fd,&tcpip.read_set); }
   virtual int ready_to_write()
@@ -149,12 +155,12 @@ class unix_fd : public net_socket
   virtual int write(void const *buf, int size, net_address *addr=NULL);
   virtual int read(void *buf, int size, net_address **addr);
 
-  virtual ~unix_fd()                            { read_unselectable();  write_unselectable(); close(fd); }
+  virtual ~unix_fd()                            { read_unselectable();  write_unselectable(); closesocket(fd); }
   virtual void read_selectable()                   { FD_SET(fd,&tcpip.master_set); }
   virtual void read_unselectable()                 { FD_CLR(fd,&tcpip.master_set); }
   virtual void write_selectable()                  { FD_SET(fd,&tcpip.master_write_set); }
   virtual void write_unselectable()                { FD_CLR(fd,&tcpip.master_write_set); }
-  int get_fd() { return fd; }
+  void *get_fd() { return reinterpret_cast<void *>(fd); }
 
   void broadcastable();
 } ;
@@ -163,7 +169,7 @@ class tcp_socket : public unix_fd
 {
   int listening;
   public :
-  tcp_socket(int fd) : unix_fd(fd) { listening=0; };
+  tcp_socket(SOCKET fd) : unix_fd(fd) { listening=0; };
   virtual int listen(int port)
   {
     sockaddr_in host;
@@ -189,8 +195,8 @@ class tcp_socket : public unix_fd
     if (listening)
     {
       struct sockaddr_in from;
-      socklen_t addr_len=sizeof(from);
-      int new_fd=::accept(fd,(sockaddr *)&from,&addr_len);
+      int addr_len=sizeof(from);
+      SOCKET new_fd=::accept(fd,(sockaddr *)&from,&addr_len);
       if (new_fd>=0)
       {
         addr=new ip_address(&from);
@@ -213,18 +219,18 @@ class udp_socket : public unix_fd
     if (addr)
     {
       *addr=new ip_address;
-      socklen_t addr_size=sizeof(sockaddr_in);
-      tr=recvfrom(fd,buf,size,0, (sockaddr *) &((ip_address *)(*addr))->addr,&addr_size);
+      int addr_size=sizeof(sockaddr_in);
+      tr=recvfrom(fd,(char *)buf,size,0, (sockaddr *) &((ip_address *)(*addr))->addr,&addr_size);
     } else
-      tr=recv(fd,buf,size,0);
+      tr=recv(fd,(char *)buf,size,0);
     return tr;
   }
   virtual int write(void const *buf, int size, net_address *addr=NULL)
   {
     if (addr)
-      return sendto(fd,buf,size,0,(sockaddr *)(&((ip_address *)addr)->addr),sizeof(((ip_address *)addr)->addr));
+      return sendto(fd,(const char *)buf,size,0,(sockaddr *)(&((ip_address *)addr)->addr),sizeof(((ip_address *)addr)->addr));
     else
-      return ::write(fd,(char*)buf,size);
+      return send(fd,(char*)buf,size,0);
   }
   virtual int listen(int port)
   {

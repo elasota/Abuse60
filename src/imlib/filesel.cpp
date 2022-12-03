@@ -12,7 +12,13 @@
 #   include "config.h"
 #endif
 
+#if defined HAVE_UNISTD_H
 #include <unistd.h>
+#endif
+
+#if defined _MSC_VER
+#include <direct.h>
+#endif
 
 #include "common.h"
 
@@ -61,10 +67,10 @@ void file_picker::note_selection(image *screen, InputManager *inm, int x)
 
       char st[200],curdir[200];
       sprintf(st,"%s/%s",cd,d[x]);
-      getcwd(curdir,200);
-      chdir(st);
-      getcwd(cd,200);
-      chdir(curdir);
+      _getcwd(curdir,200);
+      _chdir(st);
+      _getcwd(cd,200);
+      _chdir(curdir);
 
       free_up();
       get_directory(cd,f,tf,d,td);

@@ -16,7 +16,11 @@
 #   include <sys/types.h>
 #endif
 #include <fcntl.h>
+
+#if defined HAVE_UNISTD_H
 #include <unistd.h>
+#endif
+
 #include <ctype.h>
 
 #include "common.h"
@@ -41,7 +45,7 @@ extern net_protocol *prot;
 class nfs_file : public bFILE
 {
   jFILE *local;
-  int nfs_fd;
+  void *nfs_fd;
   int offset;
   public :
   nfs_file(char const *filename, char const *mode);
@@ -64,7 +68,7 @@ bFILE *open_nfs_file(char const *filename, char const *mode)
 nfs_file::nfs_file(char const *filename, char const *mode)
 {
   local=NULL;
-  nfs_fd=-1;
+  nfs_fd=nullptr;
 
   int local_only=0;
   char const *s=mode;
@@ -127,11 +131,11 @@ nfs_file::nfs_file(char const *filename, char const *mode)
     char nm[256];
     strcpy(nm,filename);
     nfs_fd=NF_open_file(nm,mode);
-    if (nfs_fd==-2)
+    if (nfs_fd==NULL)
     {
       local=new jFILE(nm,mode);
       if (local->open_failure()) { delete local; local=NULL; }
-      nfs_fd=-1;
+      nfs_fd=NULL;
     }
   }
 }
@@ -139,7 +143,7 @@ nfs_file::nfs_file(char const *filename, char const *mode)
 
 int nfs_file::open_failure()
 {
-  if (local==NULL && nfs_fd<0) return 1;
+  if (local==NULL && nfs_fd==nullptr) return 1;
   else return 0;
 }
 
@@ -148,7 +152,7 @@ int nfs_file::unbuffered_read(void *buf, size_t count)      // returns number of
 {
   if (local)
     return local->read(buf,count);
-  else if (nfs_fd>=0)
+  else if (nfs_fd)
   {
     long a=NF_read(nfs_fd,buf,count);
     if (a>(long)count)
@@ -177,7 +181,7 @@ int nfs_file::unbuffered_seek(long off, int whence) // whence=SEEK_SET, SEEK_CUR
 {
   if (local)
     return local->seek(off,whence);
-  else if (nfs_fd>=0)
+  else if (nfs_fd)
   {
     if (whence!=SEEK_SET)
       fprintf(stderr,"JC's a fork\n");
@@ -190,7 +194,7 @@ int nfs_file::unbuffered_seek(long off, int whence) // whence=SEEK_SET, SEEK_CUR
 int nfs_file::unbuffered_tell()
 {
   if (local)          return local->tell();
-  else if (nfs_fd>=0) return NF_tell(nfs_fd);
+  else if (nfs_fd)    return NF_tell(nfs_fd);
   else                return 0;
 }
 
@@ -198,7 +202,7 @@ int nfs_file::unbuffered_tell()
 int nfs_file::file_size()
 {
   if (local)          return local->file_size();
-  else if (nfs_fd>=0) return NF_filelength(nfs_fd);
+  else if (nfs_fd)    return NF_filelength(nfs_fd);
   else                return 0;
 }
 
@@ -206,7 +210,7 @@ nfs_file::~nfs_file()
 {
   flush_writes();
   if (local)          delete local;
-  else if (nfs_fd>=0) NF_close(nfs_fd);
+  else if (nfs_fd)    NF_close(nfs_fd);
 }
 
 int set_file_server(net_address *addr)

@@ -24,8 +24,15 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <sys/time.h>
 #include <time.h>
+#include <stdint.h>
+
+#ifdef _MSC_VER
+#define WIN32_LEAN_AND_MEAN
+#include <Windows.h>
+#else
+#include <sys/time.h>
+#endif
 
 #include "timing.h"
 
@@ -47,6 +54,23 @@ time_marker::time_marker()
 // get_time()
 // Get the current time
 //
+#ifdef _MSC_VER
+void time_marker::get_time()
+{
+    SYSTEMTIME sys_time;
+    FILETIME file_time;
+
+    GetSystemTime(&sys_time);
+
+    SystemTimeToFileTime(&sys_time, &file_time);
+
+    uint64_t nsec10 = (static_cast<uint64_t>(file_time.dwHighDateTime) << 32) + file_time.dwLowDateTime;
+    uint64_t usec = nsec10 / 10u;
+
+    seconds = static_cast<long>(usec / 1000000u);
+    micro_seconds = usec % 1000000u;
+}
+#else
 void time_marker::get_time()
 {
     struct timeval tv = { 0, 0 };
@@ -54,6 +78,7 @@ void time_marker::get_time()
     seconds = tv.tv_sec;
     micro_seconds = tv.tv_usec;
 }
+#endif
 
 //
 // diff_time()

@@ -38,6 +38,10 @@
 #endif    /* __APPLE__ */
 #endif    /* HAVE_OPENGL */
 
+#ifdef _MSC_VER
+#include <direct.h>
+#endif
+
 #include "specs.h"
 #include "keys.h"
 #include "setup.h"
@@ -359,7 +363,7 @@ void setup( int argc, char **argv )
     flags.doublebuf            = 1;            // Do double buffering
 #else
     flags.gl                = 0;            // Don't use opengl
-    flags.doublebuf            = 0;            // No double buffering
+    flags.doublebuf            = 1;            // No double buffering
     #endif
 #ifdef HAVE_OPENGL
     flags.antialias            = GL_NEAREST;    // Don't anti-alias
@@ -396,7 +400,7 @@ void setup( int argc, char **argv )
         if( (fd = fopen( savedir, "r" )) == NULL )
         {
             // FIXME: Add some error checking here
-            mkdir( savedir, S_IRUSR | S_IWUSR | S_IXUSR );
+            _mkdir( savedir);
         }
         else
         {

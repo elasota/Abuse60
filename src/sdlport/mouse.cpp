@@ -32,6 +32,8 @@
 #include "filter.h"
 #include "mouse.h"
 
+extern SDL_Window *window;
+
 unsigned char def_mouse[]=
 {
     0,2,0,0,0,0,0,0,
@@ -113,7 +115,7 @@ void JCMouse::set_position( int new_mx, int new_my )
     // Set the new position
     mx = new_mx;
     my = new_my;
-    SDL_WarpMouse( new_mx, new_my );
+    SDL_WarpMouseInWindow( window, new_mx, new_my );
 }
 
 //

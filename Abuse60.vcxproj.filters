@@ -1,0 +1,313 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Source Files\lol">
+      <UniqueIdentifier>{ae82b4ff-3645-4d47-8e08-d4a7a2319dc6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\lisp">
+      <UniqueIdentifier>{ddd94924-e534-4467-9a22-461a2040ae79}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\imlib">
+      <UniqueIdentifier>{6e8c7eed-e20c-479f-b877-48c97a11671f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\sdlport">
+      <UniqueIdentifier>{dee5f8ee-df55-468b-82a9-a3e2bf63fcd6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\net">
+      <UniqueIdentifier>{2bdecdda-a30f-4b11-96fa-944635bcfc74}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\ui">
+      <UniqueIdentifier>{a43d5dac-3176-4409-9485-f498ec916cd2}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\ability.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ant.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\automap.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\cache.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\chars.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\chat.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\clisp.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\collide.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\compiled.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\configuration.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\console.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\cop.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\crc.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\demo.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\dev.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\devsel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\director.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\endgame.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\extend.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\fnt6x13.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gamma.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gui.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\help.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\innet.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\intsect.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\items.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lcache.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\level.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\light.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\loader2.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\loadgame.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\morpher.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\netcfg.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\nfclient.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\objects.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\particle.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\points.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\profile.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\property.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\sensor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\smallfnt.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\specache.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\statbar.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\transp.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\view.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lol\matrix.cpp">
+      <Filter>Source Files\lol</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lol\timer.cpp">
+      <Filter>Source Files\lol</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lisp\lisp.cpp">
+      <Filter>Source Files\lisp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lisp\lisp_gc.cpp">
+      <Filter>Source Files\lisp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lisp\lisp_opt.cpp">
+      <Filter>Source Files\lisp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lisp\trig.cpp">
+      <Filter>Source Files\lisp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\imlib\dprint.cpp">
+      <Filter>Source Files\imlib</Filter>
+    </ClCompile>
+    <ClCompile Include="src\imlib\filesel.cpp">
+      <Filter>Source Files\imlib</Filter>
+    </ClCompile>
+    <ClCompile Include="src\imlib\filter.cpp">
+      <Filter>Source Files\imlib</Filter>
+    </ClCompile>
+    <ClCompile Include="src\imlib\fonts.cpp">
+      <Filter>Source Files\imlib</Filter>
+    </ClCompile>
+    <ClCompile Include="src\imlib\guistat.cpp">
+      <Filter>Source Files\imlib</Filter>
+    </ClCompile>
+    <ClCompile Include="src\imlib\image.cpp">
+      <Filter>Source Files\imlib</Filter>
+    </ClCompile>
+    <ClCompile Include="src\imlib\include.cpp">
+      <Filter>Source Files\imlib</Filter>
+    </ClCompile>
+    <ClCompile Include="src\imlib\input.cpp">
+      <Filter>Source Files\imlib</Filter>
+    </ClCompile>
+    <ClCompile Include="src\imlib\jrand.cpp">
+      <Filter>Source Files\imlib</Filter>
+    </ClCompile>
+    <ClCompile Include="src\imlib\jwindow.cpp">
+      <Filter>Source Files\imlib</Filter>
+    </ClCompile>
+    <ClCompile Include="src\imlib\keys.cpp">
+      <Filter>Source Files\imlib</Filter>
+    </ClCompile>
+    <ClCompile Include="src\imlib\linked.cpp">
+      <Filter>Source Files\imlib</Filter>
+    </ClCompile>
+    <ClCompile Include="src\imlib\palette.cpp">
+      <Filter>Source Files\imlib</Filter>
+    </ClCompile>
+    <ClCompile Include="src\imlib\pcxread.cpp">
+      <Filter>Source Files\imlib</Filter>
+    </ClCompile>
+    <ClCompile Include="src\imlib\pmenu.cpp">
+      <Filter>Source Files\imlib</Filter>
+    </ClCompile>
+    <ClCompile Include="src\imlib\scroller.cpp">
+      <Filter>Source Files\imlib</Filter>
+    </ClCompile>
+    <ClCompile Include="src\imlib\specs.cpp">
+      <Filter>Source Files\imlib</Filter>
+    </ClCompile>
+    <ClCompile Include="src\imlib\sprite.cpp">
+      <Filter>Source Files\imlib</Filter>
+    </ClCompile>
+    <ClCompile Include="src\imlib\status.cpp">
+      <Filter>Source Files\imlib</Filter>
+    </ClCompile>
+    <ClCompile Include="src\imlib\supmorph.cpp">
+      <Filter>Source Files\imlib</Filter>
+    </ClCompile>
+    <ClCompile Include="src\imlib\tools.cpp">
+      <Filter>Source Files\imlib</Filter>
+    </ClCompile>
+    <ClCompile Include="src\imlib\transimage.cpp">
+      <Filter>Source Files\imlib</Filter>
+    </ClCompile>
+    <ClCompile Include="src\imlib\video.cpp">
+      <Filter>Source Files\imlib</Filter>
+    </ClCompile>
+    <ClCompile Include="src\sdlport\event.cpp">
+      <Filter>Source Files\sdlport</Filter>
+    </ClCompile>
+    <ClCompile Include="src\sdlport\hmi.cpp">
+      <Filter>Source Files\sdlport</Filter>
+    </ClCompile>
+    <ClCompile Include="src\sdlport\jdir.cpp">
+      <Filter>Source Files\sdlport</Filter>
+    </ClCompile>
+    <ClCompile Include="src\sdlport\joystick.cpp">
+      <Filter>Source Files\sdlport</Filter>
+    </ClCompile>
+    <ClCompile Include="src\sdlport\mouse.cpp">
+      <Filter>Source Files\sdlport</Filter>
+    </ClCompile>
+    <ClCompile Include="src\sdlport\setup.cpp">
+      <Filter>Source Files\sdlport</Filter>
+    </ClCompile>
+    <ClCompile Include="src\sdlport\sound.cpp">
+      <Filter>Source Files\sdlport</Filter>
+    </ClCompile>
+    <ClCompile Include="src\sdlport\timing.cpp">
+      <Filter>Source Files\sdlport</Filter>
+    </ClCompile>
+    <ClCompile Include="src\sdlport\sdl_video.cpp">
+      <Filter>Source Files\sdlport</Filter>
+    </ClCompile>
+    <ClCompile Include="src\seq.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\menu.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\net\fileman.cpp">
+      <Filter>Source Files\net</Filter>
+    </ClCompile>
+    <ClCompile Include="src\net\gclient.cpp">
+      <Filter>Source Files\net</Filter>
+    </ClCompile>
+    <ClCompile Include="src\net\gserver.cpp">
+      <Filter>Source Files\net</Filter>
+    </ClCompile>
+    <ClCompile Include="src\net\sock.cpp">
+      <Filter>Source Files\net</Filter>
+    </ClCompile>
+    <ClCompile Include="src\net\tcpip.cpp">
+      <Filter>Source Files\net</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ui\volumewindow.cpp">
+      <Filter>Source Files\ui</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>

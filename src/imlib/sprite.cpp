@@ -78,13 +78,13 @@ void sprite::change_visual(image *Visual, int delete_old)
 
 void sprite_controller::bring_front(sprite *sp)
 {
-  ERROR(sprites.unlink(sp),"unlink failure");
+  ABUSE_ERROR(sprites.unlink(sp),"unlink failure");
   sprites.add_end(sp);
 }
 
 void sprite_controller::delete_sprite(sprite *sp)
 {
-  ERROR(sprites.unlink(sp),"unlink failure");
+  ABUSE_ERROR(sprites.unlink(sp),"unlink failure");
   delete sp;
 }
 

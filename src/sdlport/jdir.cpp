@@ -27,6 +27,8 @@
 #include <string.h>
 
 #include <sys/types.h>
+
+#if defined HAVE_UNISTD_H
 #include <dirent.h>
 #include <unistd.h>
 
@@ -82,3 +84,57 @@ void get_directory(char *path, char **&files, int &tfiles, char **&dirs, int &td
         free( tlist );
     chdir( curdir );
 }
+
+#endif
+
+#if defined _MSC_VER
+
+#define WIN32_LEAN_AND_MEAN
+#include <Windows.h>
+
+void get_directory(char *path, char **&files, int &tfiles, char **&dirs, int &tdirs)
+{
+    size_t path_len = strlen(path);
+    char *long_path = (char *)malloc(path_len + 3);
+    if (!long_path)
+        return;
+
+    memcpy(long_path, path, path_len);
+
+    long_path[path_len] = '\\';
+    long_path[path_len + 1] = '*';
+    long_path[path_len + 2] = 0;
+
+    WIN32_FIND_DATAA de;
+    HANDLE d = FindFirstFileA(long_path, &de);
+    free(long_path);
+
+    files = NULL;
+    dirs = NULL;
+    tfiles = 0;
+    tdirs = 0;
+
+    if (d == INVALID_HANDLE_VALUE)
+        return;
+
+    char **tlist = NULL;
+    int t = 0;
+
+    do
+    {
+        if (de.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+        {
+            tdirs++;
+            dirs = (char **)realloc(dirs, sizeof(char *) * tdirs);
+            dirs[tdirs - 1] = strdup(de.cFileName);
+        }
+        else
+        {
+            tfiles++;
+            files = (char **)realloc(files, sizeof(char *) * tfiles);
+            files[tfiles - 1] = strdup(de.cFileName);
+        }
+    } while (FindNextFileA(d, &de));
+    FindClose(d);
+}
+#endif

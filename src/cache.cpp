@@ -1106,7 +1106,7 @@ int CacheList::loaded(int id)
 char_tint *CacheList::ctint(int id)
 {
   CacheItem *me=list+id;
-  CONDITION(id<total && id>=0 && me->file_number>=0,"Bad id" && me->type==SPEC_PALETTE);
+  CONDITION(id<total && id>=0 && me->file_number>=0 && me->type == SPEC_PALETTE,"Bad id");
   if (me->last_access>=0)
   {
     touch(me);
