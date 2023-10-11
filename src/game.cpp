@@ -92,6 +92,8 @@ extern uint8_t chatting_enabled;
 tcpip_protocol tcpip;
 #endif
 
+bool fps60 = true;
+
 FILE *open_FILE(char const *filename, char const *mode)
 {
     /* FIXME: potential buffer overflow here */
@@ -1595,10 +1597,12 @@ void Game::do_intro()
 
 }
 
+
 // FIXME: refactor this to use the Lol Engine main fixed-framerate loop?
 int Game::calc_speed()
 {
     static Timer frame_timer;
+    static Timer global_timer;
     static int first = 1;
 
     if (first)
@@ -1618,23 +1622,25 @@ int Game::calc_speed()
 
     int ret = 0;
 
+    const float fps = fps60 ? 60.f : 15.f;
+
     if (dev & EDIT_MODE)
     {
         // ECS - Added this case and the wait.  It's a cheap hack to ensure
         // that we don't exceed 30FPS in edit mode and hog the CPU.
         frame_timer.WaitMs(33);
     }
-    else if (avg_ms < 1000.0f / 60.0f && need_delay)
+    else if (avg_ms < 1000.0f / fps && need_delay)
     {
         frame_panic = 0;
         if (!no_delay)
         {
-            frame_timer.WaitMs(1000.0f / 60.0f);
+            frame_timer.WaitMs(1000.0f / fps);
             avg_ms -= 0.1f * deltams;
-            avg_ms += 0.1f * 1000.0f / 15.0f;
+            avg_ms += 0.1f * 1000.0f / fps;
         }
     }
-    else if (avg_ms > 1000.0f / 55.f)
+    else if (avg_ms > 1000.0f / (fps * 14.f / 15.f))
     {
         if(avg_ms > 1000.0f / 10)
             massive_frame_panic++;
@@ -1645,6 +1651,9 @@ int Game::calc_speed()
 
     // Ignore our wait time, we're more interested in the frame time
     frame_timer.GetMs();
+
+    printf("Time: %g\n", global_timer.PollMs());
+
     return ret;
 }
 
