@@ -116,6 +116,7 @@ simple_object::simple_object()
   otype=0;
   state=stopped;
   current_frame=0;
+  frame_delay_counter=0;
 
   Fade_dir=0;
   Fade_count=0;

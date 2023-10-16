@@ -184,7 +184,7 @@ void simple_object::set_var(int xx, uint32_t v)
 	case 22: set_mp(v); break;
 	case 23: set_fmp(v); break;
 
-	case 24: current_frame = v;  break;
+	case 24: frame_delay_counter = 0; current_frame = v;  break;
 	case 25: set_aistate(v); break;
 
 	case 26: set_aistate_time(v); break;
@@ -592,23 +592,34 @@ void game_object::picture_space(int32_t &x1, int32_t &y1, int32_t &x2, int32_t &
 int game_object::next_picture()
 {
 	int ret = 1;
-	if (frame_dir() > 0)
+	if (fps60)
 	{
-		if (!current_sequence()->next_frame(current_frame))
-		{
-			next_sequence();
-			ret = 0;
-		}
+		frame_delay_counter++;
+		if (frame_delay_counter == 4)
+			frame_delay_counter = 0;
 	}
-	else
+
+	if (!frame_delay_counter)
 	{
-		if (!current_sequence()->last_frame(current_frame))
+		if (frame_dir() > 0)
 		{
-			next_sequence();
-			ret = 0;
+			if (!current_sequence()->next_frame(current_frame))
+			{
+				next_sequence();
+				ret = 0;
+			}
 		}
+		else
+		{
+			if (!current_sequence()->last_frame(current_frame))
+			{
+				next_sequence();
+				ret = 0;
+			}
+		}
+		frame_advance();
 	}
-	frame_advance();
+
 	return ret;
 }
 
@@ -750,9 +761,9 @@ void game_object::drawer()
 		else
 		{
 			TransImage *cpict = picture();
-			cpict->PutImage(screen,
-				vec2i((direction < 0 ? x - (cpict->Size().x - x_center() - 1) : x - x_center()) - current_vxadd,
-					y - cpict->Size().y + 1 - current_vyadd));
+			vec2i image_pos = vec2i((direction < 0 ? x - (cpict->Size().x - x_center() - 1) : x - x_center()) - current_vxadd, y - cpict->Size().y + 1 - current_vyadd);
+			//printf("Image pos: %i,%i   x: %i   x_center: %i  current_vxadd: %i\n", image_pos.x, image_pos.y, x, x_center(), current_vxadd);
+			cpict->PutImage(screen, image_pos);
 		}
 	}
 }
@@ -928,6 +939,10 @@ int game_object::tick()      // returns blocked status
 	if (flags() & FLAG_JUST_BLOCKED)
 		set_flags(flags() - FLAG_JUST_BLOCKED);
 
+	uint8_t subframe_index = 0;
+	if (current_level)
+		subframe_index = (current_level->tick_counter() & 3);
+
 	// In Abuse, the formula per frame with gravity:
 	// Accel' = Accel + 200/256
 	// Vel' = Vel + Accel'
@@ -1017,11 +1032,6 @@ int game_object::tick()      // returns blocked status
 			set_yvel(yvel() + ya + (fyv >> 8));
 			set_fxvel(fxv & 0xff);
 			set_fyvel(fyv & 0xff);
-
-			if (ya + (fyv >> 8) >= 2)
-			{
-				int n = 0;
-			}
 		}
 	}
 	else
@@ -1070,8 +1080,11 @@ int game_object::tick()      // returns blocked status
 		}
 		else
 		{
-			xv = ((integrated_accel_x + initial_accel_x * 5 / 32 + initial_vel_x / 4 + 128) >> 8);
-			yv = ((integrated_accel_y + initial_accel_y * 5 / 32 + initial_vel_y / 4 + 128) >> 8);
+			if (old_vx)
+				xv = ((integrated_accel_x + initial_accel_x * 5 / 32 + initial_vel_x / 4 + static_cast<int32_t>(subframe_index) * 64 + 32) >> 8);
+			if (old_vy)
+				yv = ((integrated_accel_y + initial_accel_y * 5 / 32 + initial_vel_y / 4 + static_cast<int32_t>(subframe_index) * 64 + 32) >> 8);
+
 			try_xv = xv;
 			try_yv = yv;
 
@@ -1267,6 +1280,7 @@ void game_object::set_state(character_state s, int frame_direction)
 	else state = stopped;
 
 	current_frame = 0;
+	frame_delay_counter = 0;
 	if (frame_direction != 1)
 		set_frame_dir(frame_direction);
 

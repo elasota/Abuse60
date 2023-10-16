@@ -62,6 +62,7 @@ public:
   uint16_t otype;
   character_state state;
   short current_frame;
+  short frame_delay_counter;
 
   int targetable()           { return targetable_on; }
   int gravity()              { return grav_on; }
