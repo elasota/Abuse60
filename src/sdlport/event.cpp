@@ -352,6 +352,9 @@ void event_handler::get_event( event &ev )
                                     }
                                 }
                             }
+
+                            if (ev.key >= 512)
+                                ev.key = EV_SPURIOUS;
                         }
                     }
                     break;
