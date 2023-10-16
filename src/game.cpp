@@ -2040,6 +2040,13 @@ void Game::step()
 
       cache.prof_poll_start();
       current_level->tick();
+
+      if (fps60)
+      {
+          for (v = first_view; v; v = v->next)
+              v->update_scroll();
+      }
+
       sbar.step();
     } else
       dev_scroll();
