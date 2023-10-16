@@ -116,10 +116,16 @@ void WindowManager::get_event(event &ev)
 {
   Jwindow *j;
   eh->get_event(ev);
-  if (ev.type==EV_KEY)
-    key_state[ev.key]=1;
-  else if (ev.type==EV_KEYRELEASE)
-    key_state[ev.key]=0;
+  if (ev.type == EV_KEY)
+  {
+      if (ev.key >= 0 && ev.key < 512)
+          key_state[ev.key] = 1;
+  }
+  else if (ev.type == EV_KEYRELEASE)
+  {
+      if (ev.key >= 0 && ev.key < 512)
+          key_state[ev.key] = 0;
+  }
 
   if (state==inputing)
   {
